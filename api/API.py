@@ -6,8 +6,14 @@ from Utils import AsyncNumberTools
 api = FastAPI()
 
 
+@api.get("/")
+async def root():
+    return {f"Head to /redoc for information"}
+
+
 @api.get("/calculate/{weight}")
 async def get_water_from_weight(weight: int):
+    """This calculates how many liters one would need to drink per day at the provided weight, in pounds."""
     water_ounces = await AsyncNumberTools.get_required_water_intake(weight=weight)
     water = await AsyncNumberTools.ounces_to_liters(ounces=water_ounces)
     return {"daily liters": f"{water}"}
@@ -15,6 +21,7 @@ async def get_water_from_weight(weight: int):
 
 @api.get("/supply")
 async def get_supply():
+    """Returns the amount of water in liters stored in the DB."""
     water_supply = await AsyncNumberTools.get_total_water_supply()
     return {"supply": f"{water_supply}"}
 
