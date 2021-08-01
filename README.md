@@ -19,3 +19,7 @@ If you ever want to set this up (which you probably shouldn't), there are three 
 3. `main.py`
 
 By default, the program will run on localhost (127.0.0.1) at port 8000
+
+# Usage
+
+To use the API, simply send a GET request to `/supply` or `/calculate/{weight as integer}/`, or send a POST request to `/edit/{operation}/{liters}`. For example,`curl -X GET 127.0.0.1:8000/supply`.
