@@ -1,13 +1,14 @@
 <html lang="en">
 <!-- I could avoid a LOT of trouble just using Flask here. I can directly throw variables into the HTML with Flask, while vanilla FastAPI
-     is more for when the frontend and backend are separate. I'm either using the wrong tool for the job or I'm not educated on my tools; likely the latter.-->
+     is more for when the frontend and backend are separate. I'm either using the wrong tool for the job or I'm not educated enough on my tools, likely the latter.-->
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Water!</title>
 </head>
-<body style="background-color: rgb(10, 75, 173); color: rgb(228, 226, 222); font-family:'Franklin Gothic Medium';">
+
+<body>
     <script>
         function loadAPI() {
             var request = new XMLHttpRequest();
@@ -19,45 +20,37 @@
             var apiStats = JSON.parse(this.responseText); 
             document.getElementById("stats").innerHTML = apiStats.supply + " liters for " + apiStats.weight + " pounds of people will last " + apiStats.days + " days"}
         
-        function sendPOSTweight(operator, quantity) {
-            var request = new XMLHttpRequest();
-            if (operator === "+"){
-                request.open("POST", "http://127.0.0.1:8000/editweight/+/" + quantity, true);}
-            else if (operator === "-") {request.open("POST", "http://127.0.0.1:8000/editweight/-/" + quantity, true);}
-            request.send();
-            loadAPI(); //put 25 seconds into finding out why this needs to be called twice to update without being behind
-            loadAPI();
-            }
-            function sendPOSTwater(operator, quantity) {
-            var request = new XMLHttpRequest();
-            if (operator === "+"){
-                request.open("POST", "http://127.0.0.1:8000/editliters/+/" + quantity, true);}
-            else if (operator === "-") {request.open("POST", "http://127.0.0.1:8000/editliters/-/" + quantity, true);}
-            request.send();
-            loadAPI(); 
-            loadAPI();
-            }
+        function updateValues(toEdit, byAmount) {
+            fetch("http://127.0.0.1:8000/edit", {method: 'POST', 
+            headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                    },
+            body: JSON.stringify({type: toEdit, increment: byAmount})})   
+        }
             window.onload = loadAPI()
     </script>
 
-    <h1 style="text-align: center;"><u>Your water supply stats</u></h1>
+    <div class="topbar">
+        <a class="currentPage" href="index.html">Stats</a>
+        <a href="calculate.html">Calculator</a>
+    </div>
+
     <noscript>You need JS to use this!</noscript>
+    <p class="warning">This is still being worked on. Any numbers that cause a division by 0 will require you to remake the DB!</p>
 
     <p id="stats" style="text-align: center; font-size: x-large;"><b> x liters</b> for <b>y pounds</b> of people will last <b>z days</b> </p>
 
     <form id="literchange" style="text-align: center;" action="/editliters/" method="POST">
         Change the liter amount here: <br>
         <input type="number" min="0" id="litercount">
-    <a class="greenbtn" onclick="sendPOSTwater('+',document.getElementById('litercount').value);">Add</a>
-    <a class="redbtn" onclick="sendPOSTwater('-',document.getElementById('litercount').value);">Subtract</a>
+        <a class="greenbtn" onclick="updateValues('liter',document.getElementById('litercount').value);">Use</a>
     </form>
 
     <form id="poundschange" style="text-align: center;">
         Change the weight in pounds here: <br>
-        <input type="number" min="0" id="poundcount">
-    <!--There is a better way to do buttons. Find out how.-->
-    <a class="greenbtn" onclick="sendPOSTweight('+',document.getElementById('poundcount').value);">Add</a>
-    <a class="redbtn" onclick="sendPOSTweight('-',document.getElementById('poundcount').value);">Subtract</a>
+        <input type="number" id="poundcount">
+        <a class="greenbtn" onclick="updateValues('weight',document.getElementById('poundcount').value);">Use</a>
     </form>
 </body>
 </html>
